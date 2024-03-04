@@ -1,0 +1,9 @@
+.idea
+*.DS_Store
+build
+build.gradle*
+settings.gradle*
+gradlew*
+.gradle
+gradle*
+jwnl14-rc2
