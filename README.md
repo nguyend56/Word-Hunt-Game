@@ -4,7 +4,7 @@ Word game implementing Model-View-ViewModel architecture pattern.
 
 ## Project Design
 
-![Project Design](images/CSC260pt4.png)
+![Project Design](images/Release22.png)
 
 ## Project Work Split
 
@@ -20,10 +20,5 @@ Word game implementing Model-View-ViewModel architecture pattern.
 
 
 ## To do
-
-- [ ] total words 
-- [ ] highlight selected boxes
-- [ ] load levels (add button)
-- [ ] bonus words
 - [ ] presentation
 - [ ] testing write up

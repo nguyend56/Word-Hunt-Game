@@ -1,8 +1,7 @@
 package cs260.ViewModel;
 
 
-import cs260.Model.WordDict;
-import cs260.Model.WordGridModel;
+import cs260.Model.*;
 import cs260.View.Scoreboard;
 import cs260.View.WordGridView;
 import javafx.scene.Parent;
@@ -16,39 +15,47 @@ import java.util.*;
  * dictionary, word grid model, scoreboard, and word grid view.
  */
 public class MainClient {
-    private WordDict dictionary;
-    private WordDict wordDict;
+
+    private AccuracyScore accuracyScore;
+    private TotalWordScore totalWordScore;
+    private WordLengthScore wordLengthScore;
 
     private WordGridModel wordGridModel;
     private Scoreboard scoreboard;
     private WordGridView wordGridView;
     private SaveLoad saveLoad;
+    private emojiParser emojiParser;
 
 
     /**
      * Constructs the MainClient, initializing all the game components.
      */
     public MainClient(Scoreboard scoreboard, WordGridView wordGridView) {
-        this.wordGridModel = new WordGridModel();
+        this.wordGridModel = new WordGridModel(wordGridView.getGrid());
         this.scoreboard = scoreboard;
         this.wordGridView = wordGridView;
         this.saveLoad = new SaveLoad();
-        this.dictionary = new WordDict(this.generateGridArray());
-
-        this.scoreboard.setTotalWordsCount(this.dictionary.getAllWordsCount());
+        this.totalWordScore = new TotalWordScore(this.generateGridArray());
+        this.accuracyScore = new AccuracyScore(this.generateGridArray());
+        this.wordLengthScore = new WordLengthScore(this.generateGridArray());
+        this.emojiParser = new emojiParser();
+        this.scoreboard.setTotalWordsCount(this.totalWordScore.getNumWordsInGrid());
         this.scoreboard.initScoreBoard();
-
+        this.wordGridView.setLetterWordCount(this.getLetterWordCount());
     }
 
     public MainClient(WordGridView wordGridView) {
-        this.wordGridModel = new WordGridModel();
+        this.wordGridModel = new WordGridModel(wordGridView.getGrid());
         this.scoreboard = new Scoreboard();
         this.wordGridView = wordGridView;
         this.saveLoad = new SaveLoad();
-        this.dictionary = new WordDict(this.generateGridArray());
-
-        this.scoreboard.setTotalWordsCount(this.dictionary.getAllWordsCount());
+        this.totalWordScore = new TotalWordScore(this.generateGridArray());
+        this.accuracyScore = new AccuracyScore(this.generateGridArray());
+        this.wordLengthScore = new WordLengthScore(this.generateGridArray());
+        this.emojiParser = new emojiParser();
+        this.scoreboard.setTotalWordsCount(this.totalWordScore.getNumWordsInGrid());
         this.scoreboard.initScoreBoard();
+        this.wordGridView.setLetterWordCount(this.getLetterWordCount());
     }
 
     public void resetGame() {
@@ -58,29 +65,20 @@ public class MainClient {
     /**
      * Updates the scoreboard based on the current game state.
      */
-    public void updateScoreboard(boolean bonus) {
-        if (bonus) this.scoreboard.addBonusScore();
-        else this.scoreboard.addCurrentScore(); 
-        this.scoreboard.updateScoreBoard();
-    }
-
-    // Getter for wordDict
-    public WordDict getWordDict() {
-        return wordDict;
-    }
-
-    // Setter for wordDict
-    public void setWordDict(WordDict wordDict) {
-        this.wordDict = wordDict;
+    public void updateScoreboard(boolean bonus, int score) {
+        if (bonus) this.scoreboard.addBonusScore(score);
+        else this.scoreboard.addCurrentScore(score); 
+        this.scoreboard.updateScoreBoard(this.accuracyScore.getAccuracy());
+        this.accuracyScore.resetNumAttempts();
     }
 
     /**
      * Saves the current game state to a specified file.
      *
-     * @param filename The name of the file to save the game state to.
+     * @param filename TselectedWordhe name of the file to save the game state to.
      */
     public void saveGameState(String filename) throws IOException {
-        saveLoad.save(wordGridModel, dictionary, filename);
+        saveLoad.save(wordGridModel, totalWordScore, filename);
     }
 
 
@@ -93,7 +91,7 @@ public class MainClient {
         SaveLoad.GameState loadedState = saveLoad.load(filename);
         if (loadedState != null) {
             this.wordGridModel = loadedState.grid;
-            this.dictionary = loadedState.dictionary;
+            this.totalWordScore = loadedState.dictionary;
             updateUIFromLoadedState(loadedState);
         } else {
             System.err.println("Failed to load game state from file: " + filename);
@@ -108,7 +106,7 @@ public class MainClient {
      */
     private void updateUIFromLoadedState(SaveLoad.GameState loadedState) {
         wordGridView.updateGrid(loadedState.grid.getGrid());
-        this.updateScoreboard(false);
+        this.updateScoreboard(false, 0);
     }
 
 
@@ -133,21 +131,6 @@ public class MainClient {
 
 
     /**
-     * Processes the selection of tiles, updating the scoreboard if a valid word is selected.
-     */
-    public void tilesSelected() {
-        String word = wordGridView.getCurrentWord();
-        if (dictionary.checkWord(word)) {
-            this.updateScoreboard(false);
-            // wordGridView.resetCurrentWord();
-        }
-        else if (dictionary.checkBonusWord(word)) {
-            this.updateScoreboard(true);
-        }
-    }
-
-
-    /**
      * Constructs and returns the primary view of the game.
      *
      * @return The primary game view as a Parent object.
@@ -158,6 +141,10 @@ public class MainClient {
         return mainLayout;
     }
 
+    public ArrayList<ArrayList<Integer>> getLetterWordCount() {
+        return this.totalWordScore.getLetterWordCount();
+    }
+
 
     /**
      * Generates a grid of letters for the game.
@@ -166,7 +153,6 @@ public class MainClient {
      */
     public ArrayList<ArrayList<Character>> generateGridArray() {
         char[][] board = wordGridView.getGrid();
-        System.out.println(Arrays.deepToString(board));
 
         ArrayList<ArrayList<Character>> board2 = new ArrayList<>();
         for (char[] row : board) {
@@ -179,6 +165,14 @@ public class MainClient {
         return board2;
     }
 
+    public boolean showEmoji(String word){
+        if(emojiParser.findEmoji(word) != null){
+            return true;
+        }
+
+        return false;
+    }
+
 
     /**
      * Processes a selected word, updating the scoreboard if the word is valid.
@@ -186,13 +180,16 @@ public class MainClient {
      * @param word The word to process.
      */
     public void processSelectedWord(String word) {
-        boolean x = this.dictionary.checkWord(word.toLowerCase());
+        this.accuracyScore.wordAttempted(word.toLowerCase());
+        boolean x = this.totalWordScore.regularWordCheck(word.toLowerCase());
+        
         System.out.println("Selected Word Valid? " + word + " : " + x);
 
         if (x) {
-            this.updateScoreboard(false);
-        } else if (this.dictionary.checkBonusWord(word.toLowerCase())) {
-            this.updateScoreboard(true);
+            this.updateScoreboard(false, this.wordLengthScore.getWordScore(word.toLowerCase()));
+            this.wordGridView.updateLetterWordCount();
+        } else if (this.totalWordScore.bonusWordCheck(word.toLowerCase())) {
+            this.updateScoreboard(true, 1);
         }
     }
 }

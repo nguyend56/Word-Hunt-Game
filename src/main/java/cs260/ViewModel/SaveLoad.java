@@ -1,6 +1,6 @@
 package cs260.ViewModel;
 
-import cs260.Model.WordDict;
+import cs260.Model.TotalWordScore;
 import cs260.Model.WordGridModel;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -11,7 +11,11 @@ import java.io.IOException;
  * Handles saving and loading the game state to and from a file in JSON format.
  */
 public class SaveLoad {
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
+
+    public SaveLoad() {
+        objectMapper = new ObjectMapper();
+    }
 
     /**
      * Saves the current game state to a specified file in JSON format.
@@ -21,7 +25,7 @@ public class SaveLoad {
      * @param filename The name of the file to save the game state to.
      * @throws IOException If an I/O error occurs during saving.
      */
-    public void save(WordGridModel grid, WordDict dictionary, String filename) throws IOException {
+    public void save(WordGridModel grid, TotalWordScore dictionary, String filename) throws IOException {
         // Creating a wrapper object to hold both grid and dictionary
         GameState gameState = new GameState(grid, dictionary);
         objectMapper.writeValue(new File(filename), gameState);
@@ -43,7 +47,7 @@ public class SaveLoad {
      */
     public static class GameState {
         public WordGridModel grid;
-        public WordDict dictionary;
+        public TotalWordScore dictionary;
 
         /**
          * Default constructor for JSON deserialization.
@@ -56,7 +60,7 @@ public class SaveLoad {
          * @param grid The word grid model.
          * @param dictionary The word dictionary.
          */
-        public GameState(WordGridModel grid, WordDict dictionary) {
+        public GameState(WordGridModel grid, TotalWordScore dictionary) {
             this.grid = grid;
             this.dictionary = dictionary;
         }

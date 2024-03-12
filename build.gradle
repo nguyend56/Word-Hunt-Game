@@ -13,7 +13,9 @@ javafx {
 }
 
 dependencies {
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.13.0'
+    implementation 'org.json:json:20240303'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.14.0'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
     testImplementation 'junit:junit:4.12'
 }
 

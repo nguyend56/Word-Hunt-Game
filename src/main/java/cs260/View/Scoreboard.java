@@ -13,8 +13,10 @@ import javafx.stage.Stage;
 
 import cs260.ViewModel.MainClient;
 
-public class Scoreboard
-{
+import java.util.*;
+
+
+public class Scoreboard {
     private ProgressBar pBar;
     private VBox vbox;
     private int currentScore;
@@ -41,35 +43,34 @@ public class Scoreboard
     /**
      * @return current score of the game
      */
-    public int getScore(){
+    public int getScore() {
         return currentScore;
     }
 
     /**
      * increments the current score
      */
-    public void addCurrentScore(){
-        currentScore ++;
+    public void addCurrentScore(int score) {
+        currentScore += score;
     }
 
-    public void addBonusScore() {
-        bonusScore++;
+    public void addBonusScore(int score) {
+        bonusScore += score;
     }
 
     /**
      * @return number of bonus words
      */
-    private int getBonusScore(){
+    private int getBonusScore() {
         return bonusScore;
     }
 
     /**
      * @return total number of possible words
-    */
-    private int totalNumWords(){
+     */
+    private int totalNumWords() {
         return totalWordsNum;
     }
-
 
     /**
      * @return a text of current score (0), level, and bonus words (0)
@@ -78,49 +79,52 @@ public class Scoreboard
         Text text = new Text();
         text.setText(
                 "Score: 0 / " + totalNumWords() + "\n" +
-                "Bonus words: 0");
+                        "Bonus words: 0");
         text.setFont(Font.font("Arial", FontWeight.BOLD, 16));
         return text;
     }
 
     /**
      * @return updated text with current score and bonus words
-    */
-    private void updateTextScore(){
-        ((Text) (vbox.getChildren().get(0))).setText(
-            "Score:" + getScore() + "/" + totalNumWords() + "\n" +
-            "Bonus words: " + getBonusScore());
+     */
+    private void updateTextScore(int accuracy) {
+        Text scoreText = (Text) (vbox.getChildren().get(0));
+        Platform.runLater(() -> {
+            scoreText.setText(
+                    "Score: " + getScore() + " / " + totalNumWords() + "\n" +
+                            "Bonus words: " + getBonusScore() + "\n" +
+                            "Accuracy: " + String.format("%d%%", accuracy)
+            );
+        });
     }
-
 
     /**
      * uses update score to load changes to progress bar
-    */
-
-    private void updateProgressBar(){
-        float wordPercentage = (float) getScore()/ totalNumWords();
+     */
+    private void updateProgressBar() {
+        float wordPercentage = (float) getScore() / totalNumWords();
         Platform.runLater(() -> {
             pBar.setProgress(wordPercentage);
         });
     }
 
 
-    public void initScoreBoard(){
+    public void initScoreBoard() {
         vbox.getChildren().add(initTextScore());
         this.pBar = new ProgressBar(0);
         vbox.getChildren().add(pBar);
     }
 
 
-    public VBox getLayout(){ 
+    public VBox getLayout() {
         vbox.setAlignment(Pos.CENTER);
         return vbox;
     }
 
 
-    public void updateScoreBoard() {
+    public void updateScoreBoard(int accuracy) {
         Platform.runLater(() -> {
-            updateTextScore();
+            updateTextScore(accuracy);
             updateProgressBar();
         });
     }
@@ -135,3 +139,4 @@ public class Scoreboard
         initScoreBoard();
     }
 }
+

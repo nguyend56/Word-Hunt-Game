@@ -67,7 +67,7 @@ goto fail
 :execute
 @rem Setup the command line
 
-set CLASSPATH=%APP_HOME%\lib\demo.jar;%APP_HOME%\lib\javafx-fxml-17-linux.jar;%APP_HOME%\lib\javafx-controls-17-linux.jar;%APP_HOME%\lib\javafx-controls-17.jar;%APP_HOME%\lib\javafx-graphics-17-linux.jar;%APP_HOME%\lib\javafx-graphics-17.jar;%APP_HOME%\lib\javafx-base-17-linux.jar;%APP_HOME%\lib\javafx-base-17.jar;%APP_HOME%\lib\jackson-databind-2.13.0.jar;%APP_HOME%\lib\jackson-core-2.13.0.jar;%APP_HOME%\lib\jackson-annotations-2.13.0.jar;%APP_HOME%\lib\jackson-dataformat-xml-2.13.0.jar;%APP_HOME%\lib\woodstox-core-6.2.6.jar;%APP_HOME%\lib\stax2-api-4.2.1.jar
+set CLASSPATH=%APP_HOME%\lib\demo.jar;%APP_HOME%\lib\javafx-fxml-17-linux.jar;%APP_HOME%\lib\javafx-controls-17-linux.jar;%APP_HOME%\lib\javafx-controls-17.jar;%APP_HOME%\lib\javafx-graphics-17-linux.jar;%APP_HOME%\lib\javafx-graphics-17.jar;%APP_HOME%\lib\javafx-base-17-linux.jar;%APP_HOME%\lib\javafx-base-17.jar;%APP_HOME%\lib\json-20240303.jar;%APP_HOME%\lib\jackson-databind-2.14.0.jar;%APP_HOME%\lib\jackson-core-2.14.0.jar;%APP_HOME%\lib\jackson-annotations-2.14.0.jar;%APP_HOME%\lib\jackson-dataformat-xml-2.14.0.jar;%APP_HOME%\lib\woodstox-core-6.4.0.jar;%APP_HOME%\lib\stax2-api-4.2.1.jar
 
 
 @rem Execute demo

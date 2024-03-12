@@ -8,14 +8,28 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class WordGridModel implements Serializable {
-    public char[][] grid = new char[4][4];
+    public static final int DEFAULT_GRID_SIZE = 4;
     private static final Random random = new Random();
     private static final String vowels = "AEIOU";
     private static final String consonants = "BCDFGHJKLMNPQRSTVWXYZ";
+    public char[][] grid;
 
     public WordGridModel() {
+        grid = new char[DEFAULT_GRID_SIZE][DEFAULT_GRID_SIZE];
         fillGridWithRandomLetters();
     }
+
+    public WordGridModel(char[][] grid) {
+        if (grid != null) {
+            this.grid = grid;
+        }else{
+            this.grid = new char[DEFAULT_GRID_SIZE][DEFAULT_GRID_SIZE];
+            fillGridWithRandomLetters();
+        }
+
+    }
+
+
 
     private void fillGridWithRandomLetters() {
         // List to keep track of used vowel positions for each row and column
@@ -25,12 +39,12 @@ public class WordGridModel implements Serializable {
         String consonants = "BCDFGHJKLMNPQRSTVWXYZ";
     
         // Randomly select vowel positions for each row and column
-        while (usedRowPositions.size() < 4) {
-            int row = random.nextInt(4);
-            int col = random.nextInt(4);
+        while (usedRowPositions.size() < DEFAULT_GRID_SIZE) {
+            int row = random.nextInt(DEFAULT_GRID_SIZE);
+            int col = random.nextInt(DEFAULT_GRID_SIZE);
     
             if (!usedRowPositions.contains(row) && !usedColPositions.contains(col)) {
-                if (usedRowPositions.size() < 2) {
+                if (usedRowPositions.size() < DEFAULT_GRID_SIZE/2) {
                     grid[row][col] = vowels.charAt(random.nextInt(vowels.length()));
                 } else {
                     grid[row][col] = consonants.charAt(random.nextInt(consonants.length()));
@@ -49,14 +63,12 @@ public class WordGridModel implements Serializable {
             }
         }
     }
-    
-
 
     public void setGridFromInput(String input) {
-        if (input.length() == 16) {
+        if (input.length() == DEFAULT_GRID_SIZE*DEFAULT_GRID_SIZE) {
             input = input.toUpperCase();
-            for (int i = 0, k = 0; i < 4; i++) {
-                for (int j = 0; j < 4; j++, k++) {
+            for (int i = 0, k = 0; i < DEFAULT_GRID_SIZE; i++) {
+                for (int j = 0; j < DEFAULT_GRID_SIZE; j++, k++) {
                     grid[i][j] = input.charAt(k);
                 }
             }
@@ -67,7 +79,6 @@ public class WordGridModel implements Serializable {
 
     public void makeGrid() {
         this.fillGridWithRandomLetters();
-        System.out.println(Arrays.deepToString(this.getGrid()));
     }
     
     public char[][] getGrid() {

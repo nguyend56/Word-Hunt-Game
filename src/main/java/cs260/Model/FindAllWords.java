@@ -9,10 +9,16 @@ public class FindAllWords {
     private Set<String> allBonusWords = new HashSet<>();
     private Set<String> regWords = new HashSet<>();
     private Set<String> bonusWords = new HashSet<>();
+    // private Map<Character, Integer> letterCountMap = new HashMap<>();
+    private int letterWordCount;
+    ArrayList<ArrayList<Integer>> letterCountMap = new ArrayList<>();
+    private ArrayList<ArrayList<Character>> board = new ArrayList<>();
 
-    public FindAllWords() throws FileNotFoundException {
+    public FindAllWords(ArrayList<ArrayList<Character>> board) throws FileNotFoundException {
         loadWordsFromFile("/src/main/java/cs260/Model/reg_words.txt", allRegWords);
         loadWordsFromFile("/src/main/java/cs260/Model/bonus_words.txt", allBonusWords);
+        this.board = board;
+        this.letterWordCount = 0;
     }
 
     private void loadWordsFromFile(String filePath, Set<String> wordSet) throws FileNotFoundException {
@@ -24,17 +30,21 @@ public class FindAllWords {
         scanner.close();
     }
 
-    public List<Set<String>> findWords(ArrayList<ArrayList<Character>> board) {
-        int rows = board.size();
-        int cols = board.get(0).size();
+    public List<Set<String>> findWords() {
+        int rows = this.board.size();
+        int cols = this.board.get(0).size();
 
         boolean[][] visited = new boolean[rows][cols];
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < rows; i++) {
+            ArrayList<Integer> rowCounts = new ArrayList<>(rows);
             for (int j = 0; j < cols; j++) {
-                dfs(board, visited, i, j, sb);
+                this.letterWordCount = 0;
+                dfs(this.board, visited, i, j, sb);
+                rowCounts.add(j, this.letterWordCount);
             }
+            this.letterCountMap.add(i, rowCounts);
         }
 
         if (regWords.isEmpty() && !bonusWords.isEmpty()) {
@@ -61,8 +71,8 @@ public class FindAllWords {
         visited[row][col] = true;
 
         String word = sb.toString().toLowerCase();
-        if (word.length() > 1) {
-            processWord(word);
+        if (word.length() > 3 && isWord(word) && !alreadyFound(word)) {
+            this.processWord(word);
         }
 
         int[][] directions = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}};
@@ -78,37 +88,22 @@ public class FindAllWords {
 
     private void processWord(String word) {
         if (allRegWords.contains(word)) {
+            this.letterWordCount++;
             regWords.add(word);
         } else if (allBonusWords.contains(word)) {
             bonusWords.add(word);
         }
     }
-}
 
-
+    private boolean alreadyFound(String word) {
+        return regWords.contains(word) || bonusWords.contains(word);
+    }
     
-    /* public static void main(String[] args) throws FileNotFoundException {
-        char[][] board = {
-            {'W', 'Q', 'O', 'J'},
-            {'C', 'N', 'D', 'U'},
-            {'I', 'F', 'D', 'D'},
-            {'W', 'A', 'Y', 'C'}
-        };
+    private boolean isWord(String word) {
+        return this.allRegWords.contains(word) || this.allBonusWords.contains(word);
+    }
 
-        ArrayList<ArrayList<Character>> board2 = new ArrayList<>();
-        for (char[] row : board) {
-            ArrayList<Character> temp = new ArrayList<>();
-            for (char c : row) {
-                temp.add(c);
-            }
-            board2.add(temp);
-        }
-
-        FindAllWords wordSearch = new FindAllWords();
-        Set<String> foundWords = wordSearch.findWords(board2);
-
-        System.out.println("Found words:");
-        for (String word : foundWords) {
-            System.out.println(word);
-        }
-    } */
+    public ArrayList<ArrayList<Integer>> getLetterWordCount(List<Set<String>> words) {
+        return this.letterCountMap;
+    }
+}
